@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Ninja</title>
+    <style>
+        body{
+            background:url("/map.png");
+            padding:0;
+            margin:0;
+            background-size:cover;
+        }
+        .map{
+            width:29.5vw;
+            height:23vw;
+        }
+        #map1{
+            position:absolute;
+            top:3vw;
+            left:8.6vw;
+        }
+        #map2{
+            position:absolute;
+            top:30vw;
+            left:8.6vw;
+        }
+        #map3{
+            position:absolute;
+            top:29.2vw;
+            left:63.6vw;
+        }
+        #map4{
+            position:absolute;
+            top:3vw;
+            left:62.6vw;
+        }
+
+        #player{
+            width:4vw;
+            height:4vw;
+            border-radius:5px;
+            background: url("https://i.redd.it/gnitxo9fwas71.gif");
+            background-size: cover;
+            position:absolute;
+            top:50%;
+            left:50%;
+            transform:translate(-50%,-50%);
+            transform : scaleX(1);
+            filter: hue-rotate(0deg);
+            filter: saturate(150%);
+        }
+        #player2{
+            width:4vw;
+            height:4vw;
+            border-radius:5px;
+            background-color:blue;
+            background: url("https://i.redd.it/gnitxo9fwas71.gif");
+            background-size: cover;
+            position:absolute;
+            top:50%;
+            left:50%;
+            transform:translate(-50%,-50%);
+            transform : scaleX(1);
+            filter: hue-rotate(0deg);
+            filter: saturate(150%);
+        }
+        meter{
+          width:10vw;
+          
+        }
+        #hpbalken{
+          position:absolute;
+          left:50%;
+          top:50%;
+          transform:translate(-50%,-50%);
+          width:10vw;
+          height:10vw;
+          color:white;
+          font-family:arial;
+          transition:0.2s;
+        }
+        #hpbalken h2{
+          margin-bottom:-0.5vh;
+        }
+        .toetsen{
+          width:30vw;
+          height: 15vw;
+          position:absolute;
+          animation: verd 3s linear;
+          opacity:0;
+        }
+        #knoppen1{
+          display:flex;
+          z-index:999;
+          top:5vw;
+          left:8vw;
+        }
+        #knoppen2{
+          display:flex;
+          z-index:999;
+          top:32vw;
+          left:63.5vw;
+        }
+        @keyframes verd {
+
+      0% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 1;
+      }
+
+    100% {
+      opacity: 0;
+    }
+        }
+    </style>
+</head>
+<body>
+  <img class="toetsen" src="/toetsenwerk1.png" id="knoppen1">
+  <img class="toetsen" src="/toetsenwerk2.png" id="knoppen2">
+    <div class="map" id="map1">
+        <div id="player"></div>
+    </div>
+    <div class="map" id="map2"></div>
+    <div class="map" id="map3">
+      <div id="player2"></div>
+    </div>
+    <div class="map" id="map4"></div>
+
+    <audio loop="true" autoplay="true">
+      <source src="/ninjalied.mp3" type="audio/mpeg">
+    </audio>
+
+    <div id="hpbalken">
+      <h2>player 1:</h2>
+      <meter class="hpbalk" id="hpb1" max="100" min="0" high="66" optimum="80"   low="30" value="100"></meter>
+      <br>
+      <h2>player 2:</h2>
+      <meter class="hpbalk" id="hpb2" max="100" min="0" high="66" optimum="80"  low="30" value="100"></meter>
+    </div>
+
+<script>
+var topplayer = 50;
+var leftplayer = 50;
+var topplayer2 = 50;
+var leftplayer2 = 50;
+var mappl1 = "map1";
+var mappl2 = "map3";
+var hp1 = 100;
+var hp2 = 100;
+
+var activeKeys = {}; // Houd bij welke toetsen ingedrukt zijn
+
+// Voegt keydown- en keyup-events toe
+document.addEventListener("keydown", function(event) {
+  activeKeys[event.key] = true; // Sla de ingedrukte toets op
+});
+
+document.addEventListener("keyup", function(event) {
+  delete activeKeys[event.key]; // Verwijder de toets als deze wordt losgelaten
+});
+
+// Een continue animatieloop voor beweging
+function movePlayer() {
+  if (activeKeys["ArrowDown"]) {
+    if (topplayer < 84) { // Beweeg alleen als de speler niet onder de ondergrens zit
+      topplayer += 0.5;
+      document.getElementById("player").style.top = topplayer + "%";
+      if(topplayer > 82){
+        if(mappl1 === "map1"){ 
+          movePlayerToMap("player", "map2");
+          topplayer = 6; 
+        } else
+        if(mappl1 === "map4"){
+          movePlayerToMap("player", "map3");
+          topplayer = 6; 
+        }
+      }
+    }
+  }
+  if (activeKeys["ArrowUp"]) {
+    if (topplayer > 0) { // Beweeg alleen als de speler niet boven de bovengrens zit
+      topplayer -= 0.5;
+      document.getElementById("player").style.top = topplayer + "%";
+      if(topplayer < 6){
+        if(mappl1 === "map2"){ 
+          movePlayerToMap("player", "map1");
+          topplayer = 85; 
+        } else
+        if(mappl1 === "map3"){
+          movePlayerToMap("player", "map4");
+          topplayer = 85; 
+        }
+      }
+    }
+  }
+  if (activeKeys["ArrowLeft"]) {
+    if (leftplayer > 0) { // Voeg vergelijkbare grenscontroles toe voor links
+      leftplayer -= 0.5;
+      document.getElementById("player").style.left = leftplayer + "%";
+      document.getElementById("player").style.transform = "scaleX(-1)";
+      if(leftplayer < 6){
+        if(mappl1 === "map3"){ 
+          movePlayerToMap("player", "map2");
+          leftplayer = 85; 
+        } else
+        if(mappl1 === "map4"){
+          movePlayerToMap("player", "map1");
+          leftplayer = 85; 
+        }
+      }
+    }
+  }
+  if (activeKeys["ArrowRight"]) {
+    if (leftplayer < 88) { // En voor rechts
+      leftplayer += 0.5;
+      document.getElementById("player").style.left = leftplayer + "%";
+      document.getElementById("player").style.transform = "scaleX(1)";
+      if(leftplayer > 86){
+        if(mappl1 === "map1"){
+          leftplayer = 0; 
+          movePlayerToMap("player", "map4");
+          leftplayer = 0; 
+        } else
+        if(mappl1 === "map2"){
+          leftplayer = 0; 
+          movePlayerToMap("player", "map3");
+          leftplayer = 0; 
+        }
+      }
+    }
+  }
+  if (activeKeys["s"]) {
+    if (topplayer2 < 84) { // Beweeg alleen als de speler niet onder de ondergrens zit
+      topplayer2 += 0.5;
+      document.getElementById("player2").style.top = topplayer2 + "%";
+      if(topplayer2 > 82){
+        if(mappl2 === "map1"){ 
+          movePlayerToMap("player2", "map2");
+          topplayer2 = 6; 
+        } else
+        if(mappl2 === "map4"){
+          movePlayerToMap("player2", "map3");
+          topplayer2 = 6; 
+        }
+      }
+    }
+  }
+  if (activeKeys["z"]) {
+    if (topplayer2 > 0) { // Beweeg alleen als de speler niet boven de bovengrens zit
+      topplayer2 -= 0.5;
+      document.getElementById("player2").style.top = topplayer2 + "%";
+      if(topplayer2 < 6){
+        if(mappl2 === "map2"){ 
+          movePlayerToMap("player2", "map1");
+          topplayer2 = 85; 
+        } else
+        if(mappl2 === "map3"){
+          movePlayerToMap("player2", "map4");
+          topplayer2 = 85; 
+        }
+      }
+    }
+  }
+  if (activeKeys["q"]) {
+    if (leftplayer2 > 0) { // Voeg vergelijkbare grenscontroles toe voor links
+      leftplayer2 -= 0.5;
+      document.getElementById("player2").style.left = leftplayer2 + "%";
+      document.getElementById("player2").style.transform = "scaleX(-1)";
+      if(leftplayer2 < 6){
+        if(mappl2 === "map3"){ 
+          movePlayerToMap("player2", "map2");
+          leftplayer2 = 85; 
+        } else
+        if(mappl2 === "map4"){
+          movePlayerToMap("player2", "map1");
+          leftplayer2 = 85; 
+        }
+      }
+    }
+  }
+  if (activeKeys["d"]) {
+    if (leftplayer2 < 88) { // En voor rechts
+      leftplayer2 += 0.5;
+      document.getElementById("player2").style.left = leftplayer2 + "%";
+      document.getElementById("player2").style.transform = "scaleX(1)";
+    }
+    if(leftplayer2 > 86){
+        if(mappl2 === "map1"){ 
+          movePlayerToMap("player2", "map4");
+          leftplayer2 = 5; 
+        } else
+        if(mappl2 === "map2"){
+          movePlayerToMap("player2", "map3");
+          leftplayer2 = 5; 
+        }
+      }
+  }
+  if (activeKeys[" "]) {
+    if (leftplayer2 - leftplayer < 10 && leftplayer2 - leftplayer > -10 && topplayer2 - topplayer < 10 && topplayer2 - topplayer > -10 && mappl1 === mappl2) { // En voor rechts
+      console.log("raak");
+      hp1 -= 0.4;
+      heal1 = 0;
+      document.getElementById("hpb1").value = hp1;
+      setTimeout(() => {
+    document.getElementById("player").style.filter = "hue-rotate(60deg)";
+}, 10);
+setTimeout(() => {
+    document.getElementById("player").style.filter = "hue-rotate(0deg)";
+}, 100);
+
+if(hp1 < 1){
+  setTimeout(() => {
+    document.getElementById("player").style.opacity = "0";
+}, 10);
+setTimeout(() => {
+    document.getElementById("player").style.opacity = "1";
+    hp1 = 100;
+    document.getElementById("hpb1").value = hp1;
+}, 10000);
+}
+    } else {
+      console.log("aanval");
+    }
+  }
+  if (activeKeys["Control"]) {
+    if (leftplayer2 - leftplayer < 10 && leftplayer2 - leftplayer > -10 && topplayer2 - topplayer < 10 && topplayer2 - topplayer > -10 && mappl1 === mappl2) { // En voor rechts
+      console.log("raak");
+      hp2 -= 0.4;
+      heal2 = 0;
+      document.getElementById("hpb2").value = hp2;
+      setTimeout(() => {
+    document.getElementById("player2").style.filter = "hue-rotate(60deg)";
+}, 10);
+setTimeout(() => {
+    document.getElementById("player2").style.filter = "hue-rotate(0deg)";
+}, 100);
+
+if(hp2 < 1){
+  setTimeout(() => {
+    document.getElementById("player2").style.opacity = "0";
+}, 10);
+setTimeout(() => {
+    document.getElementById("player2").style.opacity = "1";
+    hp2 = 100;
+    document.getElementById("hpb2").value = hp2;
+}, 10000);
+}
+    } else {
+      console.log("aanval");
+    }
+  }
+
+  requestAnimationFrame(movePlayer); // Continu animeren
+}
+
+function movePlayerToMap(playerId, mapId) {
+  var player = document.getElementById(playerId);
+  var newMap = document.getElementById(mapId);
+
+  if (player && newMap) {
+    document.getElementById(playerId).style.display = "none";
+    newMap.appendChild(player);
+    document.getElementById(playerId).style.display = "block";  // Verplaats de speler naar de nieuwe map
+  }
+  if(playerId === "player"){
+    mappl1 = mapId;
+  } else {
+    mappl2 = mapId;
+  }
+}
+// Start de animatieloop
+movePlayer();
+
+var heal1 = 0;
+var heal2 = 0;
+
+function heal(){
+heal1++;
+if(heal1 > 14){
+if(hp1 < 100){
+hp1 += 5;
+document.getElementById("hpb1").value = hp1;
+}
+}
+
+heal2++;
+if(heal2 > 14){
+if (hp2 < 100){
+hp2 += 5;
+document.getElementById("hpb2").value = hp2;
+}
+}
+console.log(heal1 + "  " + heal2);
+}
+
+heal();
+setInterval(heal,1000);
+</script>
+</body>
+</html>
